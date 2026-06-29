@@ -21,6 +21,8 @@ export const config = {
       "user-read-recently-played",
       "user-read-private",
       "user-read-email",
+      "playlist-modify-public",
+      "playlist-modify-private",
     ].join(" "),
   },
 } as const;

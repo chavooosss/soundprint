@@ -13,16 +13,12 @@ export const authService = {
 
 export const analysisService = {
   getProfile: () => api.get("/api/analysis/profile"),
-  createStudyPlaylist: (payload: {
-    seedTrackIds: string[];
-    playlistParams: {
-      targetEnergy: number;
-      targetValence: number;
-      targetTempo: number;
-      minInstrumentalness: number;
-    };
-    playlistName?: string;
-  }) => api.post("/api/analysis/playlist/study", payload),
+  createPlaylist: (payload: {
+    name: string;
+    description?: string;
+    trackUris: string[];
+    public?: boolean;
+  }) => api.post("/api/analysis/create-playlist", payload),
 };
 
 export default api;

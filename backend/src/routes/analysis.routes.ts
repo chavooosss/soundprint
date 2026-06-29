@@ -2,7 +2,7 @@ import { Router } from "express";
 import axios from "axios";
 import { config } from "../config";
 import { requireAuth } from "../middleware/auth.middleware";
-import { getTopTracks, getTopArtists, getRecentlyPlayed } from "../services/spotify.service";
+import { getTopTracks, getTopArtists, getRecentlyPlayed, getAudioFeatures, createSpotifyPlaylist, addTracksToPlaylist } from "../services/spotify.service";
 import { computeAudioStatsFromTracks, buildCharacterProfile } from "../services/analysis.service";
 
 const router = Router();
@@ -23,7 +23,8 @@ router.get("/profile", async (req, res) => {
     const [shortArtists, mediumArtists, longArtists] = artistsResults;
     const allArtists = [...shortArtists, ...mediumArtists, ...longArtists];
 
-    const stats = computeAudioStatsFromTracks(mediumTracks, allArtists);
+    const audioFeatures = await getAudioFeatures(token, mediumTracks.map((t) => t.id));
+    const stats = computeAudioStatsFromTracks(mediumTracks, allArtists, audioFeatures);
     const profile = buildCharacterProfile(stats);
 
     res.json({
@@ -35,6 +36,31 @@ router.get("/profile", async (req, res) => {
   } catch (err) {
     console.error("[Analysis Profile]", err);
     res.status(500).json({ error: "Failed to fetch profile" });
+  }
+});
+
+router.post("/create-playlist", async (req, res) => {
+  try {
+    const token = req.session.spotifyTokens!.access_token;
+    const userId = req.session.userId;
+    if (!userId) { res.status(401).json({ error: "User ID not found in session" }); return; }
+
+    const { name, description, trackUris, public: isPublic = false } = req.body as {
+      name: string; description?: string; trackUris: string[]; public?: boolean;
+    };
+
+    if (!name?.trim() || !Array.isArray(trackUris) || !trackUris.length) {
+      res.status(400).json({ error: "name ve trackUris gerekli" });
+      return;
+    }
+
+    const playlist = await createSpotifyPlaylist(token, userId, name.trim(), description ?? "", isPublic);
+    await addTracksToPlaylist(token, playlist.id, trackUris);
+
+    res.json({ url: playlist.external_urls.spotify, id: playlist.id });
+  } catch (err) {
+    console.error("[Create Playlist]", err);
+    res.status(500).json({ error: "Playlist oluşturulamadı" });
   }
 });
 

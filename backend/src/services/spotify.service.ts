@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { config } from "../config";
-import type { SpotifyTokens, SpotifyUser, SpotifyTrack, SpotifyArtist } from "../types/spotify";
+import type { SpotifyTokens, SpotifyUser, SpotifyTrack, SpotifyArtist, AudioFeatures } from "../types/spotify";
 
 type TimeRange = "short_term" | "medium_term" | "long_term";
 
@@ -57,4 +57,43 @@ export const getRecentlyPlayed = async (token: string, limit = 50): Promise<Spot
     { params: { limit } }
   );
   return data.items.map((i) => i.track);
+};
+
+export const getAudioFeatures = async (token: string, trackIds: string[]): Promise<AudioFeatures[]> => {
+  if (!trackIds.length) return [];
+  const results: AudioFeatures[] = [];
+  for (let i = 0; i < trackIds.length; i += 100) {
+    const batch = trackIds.slice(i, i + 100);
+    const { data } = await client(token).get<{ audio_features: (AudioFeatures | null)[] }>(
+      "/audio-features",
+      { params: { ids: batch.join(",") } }
+    );
+    results.push(...data.audio_features.filter((f): f is AudioFeatures => f !== null));
+  }
+  return results;
+};
+
+export const createSpotifyPlaylist = async (
+  token: string,
+  userId: string,
+  name: string,
+  description: string,
+  isPublic: boolean
+): Promise<{ id: string; external_urls: { spotify: string } }> => {
+  const { data } = await client(token).post(`/users/${userId}/playlists`, {
+    name,
+    description,
+    public: isPublic,
+  });
+  return data;
+};
+
+export const addTracksToPlaylist = async (
+  token: string,
+  playlistId: string,
+  trackUris: string[]
+): Promise<void> => {
+  for (let i = 0; i < trackUris.length; i += 100) {
+    await client(token).post(`/playlists/${playlistId}/tracks`, { uris: trackUris.slice(i, i + 100) });
+  }
 };

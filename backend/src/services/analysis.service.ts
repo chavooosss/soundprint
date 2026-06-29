@@ -1,4 +1,4 @@
-import type { SpotifyTrack, SpotifyArtist } from "../types/spotify";
+import type { SpotifyTrack, SpotifyArtist, AudioFeatures } from "../types/spotify";
 
 export interface AudioStats {
   avgTempo: number;
@@ -14,6 +14,7 @@ export interface AudioStats {
     energy: number;
     genre: string;
     trackId: string;
+    tempo: number;
   }>;
 }
 
@@ -59,7 +60,8 @@ const estimateFromTrack = (track: SpotifyTrack, index: number, total: number) =>
 
 export const computeAudioStatsFromTracks = (
   tracks: SpotifyTrack[],
-  artists: SpotifyArtist[]
+  artists: SpotifyArtist[],
+  audioFeatures?: AudioFeatures[]
 ): AudioStats => {
   if (!tracks.length) {
     return {
@@ -69,9 +71,30 @@ export const computeAudioStatsFromTracks = (
     };
   }
 
-  const estimated = tracks.map((t, i) => estimateFromTrack(t, i, tracks.length));
-  const avg = (fn: (e: ReturnType<typeof estimateFromTrack>) => number) =>
-    estimated.reduce((s, e) => s + fn(e), 0) / estimated.length;
+  const featuresById = new Map<string, AudioFeatures>();
+  audioFeatures?.forEach((f) => featuresById.set(f.id, f));
+
+  const resolved = tracks.map((t, i) => {
+    const af = featuresById.get(t.id);
+    if (af) {
+      return {
+        energy: af.energy,
+        valence: af.valence,
+        tempo: af.tempo,
+        danceability: af.danceability,
+        acousticness: af.acousticness,
+        instrumentalness: af.instrumentalness,
+        fromApi: true,
+      };
+    }
+    return { ...estimateFromTrack(t, i, tracks.length), fromApi: false };
+  });
+
+  const avg = (fn: (e: typeof resolved[0]) => number) =>
+    resolved.reduce((s, e) => s + fn(e), 0) / resolved.length;
+
+  const realCount = resolved.filter((r) => r.fromApi).length;
+  console.log(`[Analysis] Audio features: ${realCount}/${tracks.length} from Spotify API`);
 
   const stats = {
     avgTempo: avg((e) => e.tempo),
@@ -82,15 +105,16 @@ export const computeAudioStatsFromTracks = (
     avgInstrumentalness: avg((e) => e.instrumentalness),
     tempoOverTime: tracks.map((t, i) => ({
       trackName: t.name,
-      tempo: Math.round(estimateFromTrack(t, i, tracks.length).tempo),
+      tempo: Math.round(resolved[i].tempo),
       index: i,
     })),
     moodGenreMatrix: tracks.map((t, i) => ({
       trackName: t.name,
-      valence: estimated[i].valence,
-      energy: estimated[i].energy,
+      valence: resolved[i].valence,
+      energy: resolved[i].energy,
       genre: inferGenre(artists, t.artists.map((a) => a.id)),
       trackId: t.id,
+      tempo: Math.round(resolved[i].tempo),
     })),
   };
 

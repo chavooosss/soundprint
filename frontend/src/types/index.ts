@@ -12,6 +12,7 @@ export interface AudioStats {
     energy: number;
     genre: string;
     trackId: string;
+    tempo: number;
   }>;
 }
 

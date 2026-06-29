@@ -6,8 +6,6 @@ interface AnalysisState {
   profile: CharacterProfile | null;
   loading: boolean;
   error: string | null;
-  playlistUrl: string | null;
-  creatingPlaylist: boolean;
 }
 
 export const useAnalysis = () => {
@@ -15,8 +13,6 @@ export const useAnalysis = () => {
     profile: null,
     loading: false,
     error: null,
-    playlistUrl: null,
-    creatingPlaylist: false,
   });
 
   const fetchProfile = useCallback(async () => {
@@ -32,28 +28,5 @@ export const useAnalysis = () => {
     }
   }, []);
 
-  const createStudyPlaylist = useCallback(
-    async (seedTrackIds: string[], playlistName?: string) => {
-      if (!state.profile) return;
-      setState((s) => ({ ...s, creatingPlaylist: true }));
-      try {
-        const { data } = await analysisService.createStudyPlaylist({
-          seedTrackIds,
-          playlistParams: state.profile.studyPlaylistParams,
-          playlistName,
-        });
-        setState((s) => ({
-          ...s,
-          creatingPlaylist: false,
-          playlistUrl: data.playlist.external_urls.spotify,
-        }));
-        return data;
-      } catch {
-        setState((s) => ({ ...s, creatingPlaylist: false }));
-      }
-    },
-    [state.profile]
-  );
-
-  return { ...state, fetchProfile, createStudyPlaylist };
+  return { ...state, fetchProfile };
 };

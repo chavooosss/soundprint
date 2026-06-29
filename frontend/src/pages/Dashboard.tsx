@@ -20,9 +20,9 @@ type Tab = "overview" | "ai" | "stats" | "network" | "artists" | "playlist" | "p
 type TimeRange = "short_term" | "medium_term" | "long_term";
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: "overview",  label: "Overview",     icon: "⊡" },
-  { id: "ai",        label: "AI Analiz",    icon: "✦" },
-  { id: "stats",     label: "İstatistikler",icon: "▦" },
+  { id: "overview",  label: "Overview",      icon: "⊡" },
+  { id: "ai",        label: "AI Analiz",     icon: "✦" },
+  { id: "stats",     label: "İstatistikler", icon: "▦" },
   { id: "network",   label: "Sanatçı Ağı",  icon: "◎" },
   { id: "artists",   label: "Sanatçılar",   icon: "♪" },
   { id: "playlist",  label: "Playlist",     icon: "▷" },
@@ -36,10 +36,18 @@ export const Dashboard = () => {
   const [fullData, setFullData] = useState<any>(null);
   const [tab, setTab] = useState<Tab>("overview");
   const [timeRange] = useState<TimeRange>("medium_term");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Dark mode
+  const [dark, setDark] = useState(() => localStorage.getItem("soundprint-theme") === "dark");
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    localStorage.setItem("soundprint-theme", dark ? "dark" : "light");
+  }, [dark]);
 
   useEffect(() => {
     authService.getStatus().then(({ data }) => setUser(data.user)).catch(() => { window.location.href = "/"; });
-    fetchProfile().then(d => { if (d) setFullData(d); });
+    fetchProfile().then((d) => { if (d) setFullData(d); });
   }, []);
 
   if (loading) return (
@@ -71,25 +79,38 @@ export const Dashboard = () => {
   allArtists.forEach((a: any) => { a.genres?.slice(0, 2).forEach((g: string) => { genreMap[g] = (genreMap[g] || 0) + 1; }); });
   const topGenres = Object.entries(genreMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
 
+  const navTo = (t: Tab) => { setTab(t); setSidebarOpen(false); };
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", fontFamily: "var(--font)" }}>
+      {/* Hamburger */}
+      <button className="hamburger" onClick={() => setSidebarOpen((o) => !o)} aria-label="Menü">
+        {sidebarOpen ? "✕" : "☰"}
+      </button>
+
+      {/* Mobile overlay */}
+      <div className={`mobile-overlay${sidebarOpen ? " visible" : ""}`} onClick={() => setSidebarOpen(false)} />
+
       {/* Sidebar */}
-      <div style={{ position: "fixed", left: 0, top: 0, bottom: 0, width: 220, background: "var(--surface)", borderRight: "1px solid var(--border)", display: "flex", flexDirection: "column", zIndex: 100, padding: "20px 12px" }}>
-        {/* Logo */}
+      <div className={`dashboard-sidebar${sidebarOpen ? " open" : ""}`}>
+        {/* Logo + dark toggle */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 8px", marginBottom: 28 }}>
           <div style={{ width: 32, height: 32, borderRadius: 9, background: "linear-gradient(145deg,#1d1d1f,#3a3a3c)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="white" opacity="0.9"><circle cx="12" cy="12" r="5" fill="white"/><circle cx="12" cy="12" r="10" stroke="white" strokeWidth="1.5" fill="none" opacity="0.3"/></svg>
           </div>
-          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "-0.01em", color: "var(--text)" }}>Soundprint</span>
+          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "-0.01em", color: "var(--text)", flex: 1 }}>Soundprint</span>
+          <button className="theme-toggle" onClick={() => setDark((d) => !d)} title={dark ? "Açık tema" : "Koyu tema"}>
+            {dark ? "☀" : "🌙"}
+          </button>
         </div>
 
         {/* Nav */}
         <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-          {TABS.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)}
+          {TABS.map((t) => (
+            <button key={t.id} onClick={() => navTo(t.id)}
               style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: "none", background: tab === t.id ? "var(--bg)" : "transparent", color: tab === t.id ? "var(--text)" : "var(--text2)", fontSize: 13, fontWeight: tab === t.id ? 600 : 500, cursor: "pointer", fontFamily: "var(--font)", transition: "all 0.15s", textAlign: "left" }}
-              onMouseEnter={e => { if (tab !== t.id) (e.currentTarget as HTMLButtonElement).style.background = "var(--bg)"; }}
-              onMouseLeave={e => { if (tab !== t.id) (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}>
+              onMouseEnter={(e) => { if (tab !== t.id) (e.currentTarget as HTMLButtonElement).style.background = "var(--bg)"; }}
+              onMouseLeave={(e) => { if (tab !== t.id) (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}>
               <span style={{ fontSize: 14, opacity: 0.6, width: 18, textAlign: "center" }}>{t.icon}</span>
               {t.label}
             </button>
@@ -107,20 +128,19 @@ export const Dashboard = () => {
           </div>
           <button onClick={() => authService.logout().then(() => { window.location.href = "/"; })}
             style={{ width: "100%", marginTop: 4, padding: "7px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: "var(--text3)", fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: "var(--font)", transition: "all 0.15s" }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "var(--bg)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--text2)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--text3)"; }}>
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--bg)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--text2)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--text3)"; }}>
             Çıkış Yap
           </button>
         </div>
       </div>
 
       {/* Main */}
-      <div style={{ marginLeft: 220, padding: "28px 28px", maxWidth: 1080, minHeight: "100vh" }}>
+      <div className="dashboard-main">
 
         {/* OVERVIEW */}
         {tab === "overview" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            {/* Hero greeting */}
             <div className="fade-up">
               <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 4 }}>
                 Merhaba, {user?.display_name?.split(" ")[0]} 👋
@@ -129,7 +149,7 @@ export const Dashboard = () => {
             </div>
 
             {/* Stats row */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+            <div className="stats-grid-4" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
               {[
                 { label: "Ort. Tempo", value: Math.round(profile.stats.avgTempo), unit: "BPM", color: "var(--accent)" },
                 { label: "Enerji", value: (profile.stats.avgEnergy * 100).toFixed(0), unit: "%", color: "var(--green)" },
@@ -144,10 +164,9 @@ export const Dashboard = () => {
               ))}
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 16 }}>
+            <div className="content-grid-main" style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 16 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {/* Charts */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div className="chart-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <div className="card fade-up-2" style={{ padding: 18 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>Tempo Akışı</div>
                     <div style={{ fontSize: 11, color: "var(--text3)", marginBottom: 14 }}>BPM dağılımı</div>
@@ -160,7 +179,6 @@ export const Dashboard = () => {
                   </div>
                 </div>
 
-                {/* Top tracks */}
                 <div className="card fade-up-3" style={{ padding: 0, overflow: "hidden" }}>
                   <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
                     <div style={{ fontSize: 14, fontWeight: 600 }}>Top Parçalar</div>
