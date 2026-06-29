@@ -1,0 +1,21 @@
+node_modules/
+dist/
+
+# Environment files
+.env
+backend/.env
+frontend/.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+
+# Vite
+frontend/dist/
+frontend/.vite/
+
+# TypeScript
+*.tsbuildinfo
