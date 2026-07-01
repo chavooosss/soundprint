@@ -1,9 +1,11 @@
 # Soundprint
 
+[![Release](https://img.shields.io/github/v/release/chavooosss/soundprint?label=release)](https://github.com/chavooosss/soundprint/releases)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-61dafb.svg)](https://react.dev/)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8.svg)](https://web.dev/progressive-web-apps/)
 
 > **Spotify sana ne dinlediğini söyler. Soundprint sana kim olduğunu gösterir.**
 
@@ -26,8 +28,11 @@ Spotify Wrapped yılda bir kez gelir ve "en çok dinlediğin 5 sanatçı" der. B
 | Ses profili DNA | ✅ | ❌ | ❌ | ❌ |
 | Dinleme pattern analizi | ✅ | ❌ | ❌ | ❌ |
 | Akıllı playlist motoru | ✅ | ❌ | ❌ | ❌ |
+| Haftalık karşılaştırma | ✅ | ❌ | ⚡ Sınırlı | ⚡ Sınırlı |
+| Paylaşılabilir profil kartı | ✅ | ✅ | ❌ | ❌ |
 | Türkçe müzik desteği | ✅ | ✅ | ⚡ Kısıtlı | ⚡ Kısıtlı |
 | Kurulum gerektirmez | ✅ | ✅ | ❌ Ayrı kurulum | ✅ |
+| Yüklenebilir (PWA) | ✅ | ❌ | ❌ | ❌ |
 
 **Asıl fark:** Diğer uygulamalar liste gösterir. Soundprint seni *tanımlar*.
 
@@ -53,6 +58,10 @@ Dinleme alışkanlıklarından çıkarılan kişilik profili:
 - Günün saatlerine göre dağılım (Gece / Sabah / Öğle / Akşam)
 - 2 saatlik kayan pencere ile gerçek peak saat tespiti
 - Son dinlenenler listesi
+- **Haftalık Karşılaştırma** — son 7 gün vs önceki 7 gün: dinleme sayısı, farklı parça/sanatçı, dönemin zirvesi. Spotify'ın sakladığı son 50 çalma yetersizse şeffaf uyarı gösterir
+
+### Paylaşılabilir Profil Kartı
+"Paylaş" sekmesinde 4 slaytlık bir profil kartı: Karakter, Top Sanatçılar, Top Parçalar, Ses DNA. Kartın arkaplanı, müzik kişiliğine (archetype) göre renklenen ve imleçle etkileşen bir **WebGL fluid simulation** efektiyle canlanır. PNG olarak indirilebilir veya Web Share API ile doğrudan paylaşılabilir.
 
 ### Akıllı Playlist Motoru
 Spotify'ın kısıtladığı Recommendations API'sine bağlı kalmadan çalışır. Kendi genre-tabanlı tahmin algoritmasıyla:
@@ -68,6 +77,11 @@ Ortak türlere göre bağlantılı sanatçı grafiği — canvas fizik simülasy
 
 ### AI Analiz *(Opsiyonel — Gemini API key gerekir)*
 Müzik psikolojisi yorumu: Kişilik, Ruh Dünyası, Hayat Tarzı İpuçları.
+
+### PWA — Yüklenebilir Uygulama
+Soundprint, tarayıcıya veya telefon ana ekranına yüklenebilir bir Progressive Web App'tir. Service worker sayesinde:
+- Uygulama kabuğu (shell) offline'da bile açılır, çevrimdışıyken net bir "Çevrimdışısın" ekranı gösterir (oturumdan çıkmış gibi görünmez)
+- Spotify görselleri ve profil verisi akıllıca önbelleğe alınır (auth istekleri asla önbelleklenmez)
 
 ---
 
@@ -171,10 +185,11 @@ CLIENT_URL=http://localhost:3000
 - [x] Dark mode
 - [x] Mobil responsive
 - [x] Dinleme pattern analizi (gün + saat dağılımı)
+- [x] Çoklu dönem karşılaştırma (bu hafta vs geçen hafta)
+- [x] Paylaşılabilir profil kartı (Wrapped benzeri, WebGL fluid efekt)
+- [x] PWA desteği
 - [ ] Spotify Extended Quota Mode → playlist kaydetme
-- [ ] Çoklu dönem karşılaştırma (bu hafta vs geçen hafta)
-- [ ] Paylaşılabilir profil kartı (Wrapped benzeri)
-- [ ] PWA desteği
+- [ ] Login sayfası — sosyal kanıt / ekran görüntüsü galerisi
 
 ---
 
