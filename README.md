@@ -2,29 +2,87 @@
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-61dafb.svg)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**Müziğin seni nasıl tanımlıyor?**
+> **Spotify sana ne dinlediğini söyler. Soundprint sana kim olduğunu gösterir.**
 
-Spotify dinleme verilerinden kişilik analizi, sanatçı ilişki ağı, müzik DNA görselleştirmesi ve Gemini AI yorumu — tek bir arayüzde.
+Spotify dinleme verilerinden gerçek zamanlı kişilik analizi, müzik DNA görselleştirmesi, pattern haritası ve akıllı playlist motoru.
+
+---
+
+## Neden Soundprint?
+
+Spotify Wrapped yılda bir kez gelir ve "en çok dinlediğin 5 sanatçı" der. Bu yeterli değil.
+
+İnsanlar müzikleriyle kendilerini anlamak istiyor: enerji profilim nedir, ne zaman daha çok dinliyorum, müziğim kişiliğim hakkında ne söylüyor, odaklanmak için hangi şarkıları seçmeliyim?
+
+### Rakiplerden farkı
+
+| | Soundprint | Spotify Wrapped | Last.fm | Stats for Spotify |
+|---|---|---|---|---|
+| Gerçek zamanlı | ✅ | ❌ Yılda bir | ✅ | ✅ |
+| Kişilik arketipi | ✅ | ⚡ Sınırlı | ❌ | ❌ |
+| Ses profili DNA | ✅ | ❌ | ❌ | ❌ |
+| Dinleme pattern analizi | ✅ | ❌ | ❌ | ❌ |
+| Akıllı playlist motoru | ✅ | ❌ | ❌ | ❌ |
+| Türkçe müzik desteği | ✅ | ✅ | ⚡ Kısıtlı | ⚡ Kısıtlı |
+| Kurulum gerektirmez | ✅ | ✅ | ❌ Ayrı kurulum | ✅ |
+
+**Asıl fark:** Diğer uygulamalar liste gösterir. Soundprint seni *tanımlar*.
 
 ---
 
 ## Özellikler
 
-| Sekme | Açıklama |
-|---|---|
-| **Overview** | Tempo/enerji/ruh hali kartları, BPM eğrisi, Mood matrisi, top parçalar ve sanatçılar |
-| **AI Analiz** | Gemini ile müzik psikolojisi — Kişilik, Ruh Dünyası, Hayat Tarzı İpuçları |
-| **İstatistikler** | 3 dönem karşılaştırmalı grafik (4 hafta / 6 ay / tüm zaman) |
-| **Sanatçı Ağı** | Ortak türlere göre bağlantılı sanatçı grafiği — canvas fizik simülasyonu |
-| **Sanatçılar** | Deep-dive sanatçı kartları: tür, takipçi, popülarite |
-| **Playlist** | Karakter profiline göre çalışma playlist'i parametreleri |
-| **Patterns** | Haftalık dinleme ısı haritası + dönem karşılaştırma |
-| **Feed** | Son dinlenen şarkılar akışı |
+### Overview
+Müzik karakterini tek bakışta gör — enerji, ruh hali, tempo kartları, BPM eğrisi ve Mood matrisi.
 
-**Müzik DNA** — 5 ses parametresi (enerji, ruh hali, tempo, dans, akustik) animasyonlu helix görselleştirmesi  
-**Karakter Arketipleri** — Night Owl · Optimist · Deep Thinker · Flow State
+### Karakter Arketipleri
+Dinleme alışkanlıklarından çıkarılan kişilik profili:
+- **The Optimist** — Enerjik, pozitif, motivasyon odaklı
+- **The Night Owl** — Gece saatlerinde yoğun, melankolik tonlar
+- **Deep Thinker** — Enstrümantal ağırlıklı, yüksek odak
+- **The Flow State** — Sabit tempo, yüksek dans, süreklilik
+
+### Müzik DNA
+5 ses parametresi (enerji, ruh hali, dans, akustik, enstrümantal) animasyonlu helix görselleştirmesi.
+
+### Dinleme Analizi (Patterns)
+- Haftanın günlerine göre yoğunluk barları
+- Günün saatlerine göre dağılım (Gece / Sabah / Öğle / Akşam)
+- 2 saatlik kayan pencere ile gerçek peak saat tespiti
+- Son dinlenenler listesi
+
+### Akıllı Playlist Motoru
+Spotify'ın kısıtladığı Recommendations API'sine bağlı kalmadan çalışır. Kendi genre-tabanlı tahmin algoritmasıyla:
+- Mood hedefine göre şarkı skorlama
+- Sanatçı çeşitliliği (aynı sanatçıdan max 2 parça)
+- Şarkı ismi / Spotify URI kopyalama
+
+### İstatistikler
+3 dönem karşılaştırması (4 hafta / 6 ay / tüm zaman), Parça Popülaritesi ve Tür Dağılımı grafikleri.
+
+### Sanatçı Ağı
+Ortak türlere göre bağlantılı sanatçı grafiği — canvas fizik simülasyonu.
+
+### AI Analiz *(Opsiyonel — Gemini API key gerekir)*
+Müzik psikolojisi yorumu: Kişilik, Ruh Dünyası, Hayat Tarzı İpuçları.
+
+---
+
+## Teknik Notlar
+
+### Spotify API Kısıtlamaları (Kasım 2024 sonrası)
+Spotify, yeni uygulamalar için **Audio Features** ve **Recommendations** endpoint'lerini kısıtladı. Soundprint bunu şöyle aşıyor:
+
+- **Genre-tabanlı tahmin motoru** — 21 tür profili üzerinden enerji/valence/tempo tahmini
+- **Frontend playlist engine** — Tüm öneri mantığı tarayıcıda çalışır, backend DNS hatalarına bağımlılık yok
+- **Türkçe müzik desteği** — Türk sanatçıların Spotify'da tür verisi olmadığı durumlarda popülarite tabanlı gösterim
+
+### Playlist Kaydetme
+Spotify'ın Development Mode kısıtlamaları nedeniyle playlist yazma (403) şu an engelleniyor. Geçici çözüm: şarkı isimlerini ve URI'lerini kopyalama butonları.  
+*Kalıcı çözüm: Spotify Extended Quota Mode başvurusu.*
 
 ---
 
@@ -32,24 +90,22 @@ Spotify dinleme verilerinden kişilik analizi, sanatçı ilişki ağı, müzik D
 
 ```
 soundprint/
-├── backend/              # Node.js + Express + TypeScript
+├── backend/                    # Node.js + Express + TypeScript
 │   └── src/
-│       ├── config/       # Env var yönetimi
-│       ├── middleware/   # Auth + otomatik token yenileme
-│       ├── routes/       # /auth + /api/analysis
-│       ├── services/     # Spotify API client, analiz mantığı
-│       └── types/        # Spotify veri tipleri
+│       ├── config/             # Env var yönetimi
+│       ├── middleware/         # Auth + otomatik token yenileme
+│       ├── routes/             # /auth + /api/analysis
+│       └── services/           # Spotify API client, analiz + genre tahmini
 │
-└── frontend/             # React 18 + TypeScript + Vite
+└── frontend/                   # React 18 + TypeScript + Vite
     └── src/
-        ├── components/   # 12 görsel bileşen
-        ├── hooks/        # useAnalysis
-        ├── pages/        # Login, Dashboard
-        ├── services/     # API client
-        └── types/        # CharacterProfile, AudioStats
+        ├── components/         # PatternHeatmap, PlaylistEngine, StatsCharts...
+        ├── pages/              # Login, Dashboard
+        ├── services/           # API client
+        └── types/              # CharacterProfile, AudioStats
 ```
 
-Vite proxy ile frontend `/auth` ve `/api` isteklerini backend'e yönlendirir — ayrı origin'de cookie sorunu olmaz.
+Vite proxy ile frontend `/auth` ve `/api` isteklerini backend'e yönlendirir.
 
 ---
 
@@ -59,13 +115,14 @@ Vite proxy ile frontend `/auth` ve `/api` isteklerini backend'e yönlendirir —
 
 [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) → **Create App**
 
-Redirect URI: `http://127.0.0.1:3001/auth/callback`
+- Redirect URI: `http://127.0.0.1:3001/auth/callback`
+- İzinler: `user-top-read`, `user-read-recently-played`, `user-read-email`, `user-read-private`
 
 ### 2. Backend
 
 ```bash
 cd backend
-cp .env.example .env   # doldurun
+cp .env.example .env   # aşağıdaki değerleri doldur
 npm install
 npm run dev            # → http://127.0.0.1:3001
 ```
@@ -84,34 +141,40 @@ npm run dev            # → http://localhost:3000
 
 ---
 
-## Backend `.env`
+## `.env` Referansı
 
 ```env
 SPOTIFY_CLIENT_ID=...
 SPOTIFY_CLIENT_SECRET=...
 SPOTIFY_REDIRECT_URI=http://127.0.0.1:3001/auth/callback
-SESSION_SECRET=<crypto.randomBytes(32).toString('hex')>
+SESSION_SECRET=<en az 32 karakter rastgele string>
 GEMINI_API_KEY=...      # Opsiyonel — AI Analiz sekmesi için
+CLIENT_URL=http://localhost:3000
 ```
 
 ---
 
-## Güvenlik Notları
+## Güvenlik
 
-- **OAuth CSRF koruması** — State parametresi server-side session'da saklanır ve callback'te doğrulanır
-- **Token yenileme** — Middleware, token dolmadan 60 saniye önce otomatik refresh yapar
-- **API key güvenliği** — Gemini key yalnızca backend `.env`'de tutulur, tarayıcıya asla ulaşmaz
-- **Yalnızca okuma** — Sadece `user-top-read` ve `user-read-recently-played` scope'ları istenir
-- **Veri paylaşımı yok** — Tüm veriler kullanıcı session'ında tutulur
+- **OAuth CSRF koruması** — State parametresi server-side doğrulanır, süresi 10 dakika
+- **Otomatik token yenileme** — Dolmadan 60 saniye önce middleware refresh yapar
+- **API key izolasyonu** — Gemini key yalnızca backend'de, tarayıcıya ulaşmaz
+- **Yalnızca okuma scope'ları** — Playlist yazma dışında hiçbir yazma izni talep edilmez
+- **Veri paylaşımı yok** — Tüm veriler kullanıcının kendi session'ında tutulur
 
 ---
 
 ## Roadmap
 
-- [ ] Spotify Audio Features API ile gerçek BPM/energy/valence değerleri
-- [ ] Playlist oluşturma ve Spotify'a kaydetme
-- [ ] Dark mode
-- [ ] Mobil responsive
+- [x] Spotify Audio Features API bağımlılığı → genre-tabanlı tahmin motoru
+- [x] Playlist öneri motoru (frontend, API bağımsız)
+- [x] Dark mode
+- [x] Mobil responsive
+- [x] Dinleme pattern analizi (gün + saat dağılımı)
+- [ ] Spotify Extended Quota Mode → playlist kaydetme
+- [ ] Çoklu dönem karşılaştırma (bu hafta vs geçen hafta)
+- [ ] Paylaşılabilir profil kartı (Wrapped benzeri)
+- [ ] PWA desteği
 
 ---
 
