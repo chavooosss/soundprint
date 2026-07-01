@@ -202,7 +202,7 @@ export const PatternHeatmap = ({ recent, tracks, profile }: Props) => {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 {recent.slice(0, 5).map((t: any, i: number) => (
-                  <div key={t.id ?? i}
+                  <div key={t.played_at ?? `${t.id}-${i}`}
                     style={{ display: "flex", alignItems: "center", gap: 12, padding: "6px 8px", borderRadius: 10, transition: "background .15s", cursor: "default" }}
                     onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
                     onMouseLeave={e => (e.currentTarget.style.background = "transparent")}

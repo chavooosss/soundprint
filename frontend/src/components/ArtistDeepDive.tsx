@@ -53,7 +53,9 @@ export const ArtistDeepDive = ({ artists, tracks }: Props) => {
             {[
               { label:"Top Listemde", value:`${artTracks.length} parça` },
               { label:"Toplam Süre", value:totalMin>0?`${totalMin} dk`:"—" },
-              { label:"Popülerlik", value:art.popularity != null ? `${art.popularity}/100` : "—" },
+              { label:"Popülerlik", value: art.popularity
+                ? `${art.popularity}/100`
+                : art.followers?.total ? `${art.followers.total.toLocaleString("tr-TR")} takipçi` : "—" },
             ].map(s => (
               <div key={s.label}>
                 <div style={{ fontSize:11, color:"var(--text3)", fontWeight:500, marginBottom:2 }}>{s.label}</div>

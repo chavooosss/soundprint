@@ -13,6 +13,9 @@ npm-debug.log*
 # OS
 .DS_Store
 
+# Session store (contains live Spotify OAuth tokens)
+backend/sessions/
+
 # Vite
 frontend/dist/
 frontend/.vite/

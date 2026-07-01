@@ -13,10 +13,13 @@ import { ComparisonMode } from "../components/ComparisonMode";
 import { ArtistDeepDive } from "../components/ArtistDeepDive";
 import { PlaylistEngine } from "../components/PlaylistEngine";
 import { StatsCharts } from "../components/StatsCharts";
+import { TopTrackRow } from "../components/TrackHoverCard";
+import { WeeklyComparison } from "../components/WeeklyComparison";
+import { ShareCard } from "../components/ShareCard";
 import type { SpotifyUser } from "../types";
 import type { CharacterProfile } from "../types";
 
-type Tab = "overview" | "ai" | "stats" | "network" | "artists" | "playlist" | "patterns" | "feed";
+type Tab = "overview" | "ai" | "stats" | "network" | "artists" | "playlist" | "patterns" | "feed" | "share";
 type TimeRange = "short_term" | "medium_term" | "long_term";
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
@@ -28,6 +31,7 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: "playlist",  label: "Playlist",     icon: "▷" },
   { id: "patterns",  label: "Patterns",     icon: "▣" },
   { id: "feed",      label: "Feed",         icon: "≡" },
+  { id: "share",     label: "Paylaş",       icon: "⬈" },
 ];
 
 export const Dashboard = () => {
@@ -193,16 +197,7 @@ export const Dashboard = () => {
                     <div style={{ fontSize: 14, fontWeight: 600 }}>Top Parçalar</div>
                   </div>
                   {tracks.slice(0, 8).map((t: any, i: number) => (
-                    <div key={t.id} className="track-item" style={{ padding: "9px 20px", borderBottom: i < 7 ? "1px solid var(--border2)" : "none", borderRadius: 0 }}>
-                      <span style={{ fontSize: 11, color: "var(--text3)", width: 20, textAlign: "right", flexShrink: 0 }}>{i+1}</span>
-                      <img src={t.album?.images?.[2]?.url||t.album?.images?.[0]?.url} style={{ width: 36, height: 36, borderRadius: 6, objectFit: "cover" }} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.name}</div>
-                        <div style={{ fontSize: 11, color: "var(--text2)", marginTop: 1 }}>{t.artists?.map((a:any)=>a.name).join(", ")}</div>
-                      </div>
-                      <span style={{ fontSize: 11, color: "var(--text3)", flexShrink: 0 }}>
-                        {t.duration_ms?`${Math.floor(t.duration_ms/60000)}:${String(Math.floor((t.duration_ms%60000)/1000)).padStart(2,"0")}`:""}</span>
-                    </div>
+                    <TopTrackRow key={t.id} track={t} index={i} showBorder={i < 7} />
                   ))}
                 </div>
               </div>
@@ -251,8 +246,10 @@ export const Dashboard = () => {
             </button>
           </div>
           <PatternHeatmap recent={recent} tracks={tracks} profile={profile}/>
+          <WeeklyComparison recent={recent}/>
           <ComparisonMode short={{ label:"4 Hafta",...buildPeriodProfile("short_term") }} medium={{ label:"6 Ay",...buildPeriodProfile("medium_term") }} long={{ label:"Tüm Zaman",...buildPeriodProfile("long_term") }}/></div>}
         {tab === "feed" && <RecentFeed recent={recent}/>}
+        {tab === "share" && <div style={{ display: "flex", justifyContent: "center", padding: "20px 0" }}><ShareCard profile={profile} artists={allArtists} tracks={tracks}/></div>}
       </div>
     </div>
   );
