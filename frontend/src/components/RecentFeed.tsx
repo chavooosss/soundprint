@@ -25,9 +25,11 @@ export const RecentFeed = ({ recent }: Props) => {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(180px,1fr))", gap: 12 }}>
         {all.slice(0,n).map((t:any,i:number)=>(
-          <div key={`${t.id}-${i}`}
-            style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", transition: "all 0.2s", cursor: "default" }}
-            onMouseEnter={e=>{const el=e.currentTarget as HTMLElement;el.style.transform="translateY(-3px)";el.style.borderColor="rgba(255,255,255,0.12)";el.style.boxShadow="0 12px 40px rgba(0,0,0,0.4)";}}
+          <a key={`${t.id}-${i}`}
+            href={t.external_urls?.spotify || `https://open.spotify.com/track/${t.id}`}
+            target="_blank" rel="noreferrer"
+            style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden", transition: "all 0.2s", cursor: "pointer", textDecoration: "none", display: "block" }}
+            onMouseEnter={e=>{const el=e.currentTarget as HTMLElement;el.style.transform="translateY(-3px)";el.style.borderColor="rgba(29,185,84,0.4)";el.style.boxShadow="0 12px 40px rgba(0,0,0,0.3)";}}
             onMouseLeave={e=>{const el=e.currentTarget as HTMLElement;el.style.transform="none";el.style.borderColor="var(--border)";el.style.boxShadow="none";}}>
             <div style={{ position: "relative" }}>
               <img src={t.album?.images?.[1]?.url||t.album?.images?.[0]?.url} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", display: "block" }} />
@@ -39,7 +41,7 @@ export const RecentFeed = ({ recent }: Props) => {
               <div style={{ fontSize: 11, color: "var(--text2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 2 }}>{t.artists?.map((a:any)=>a.name).join(", ")}</div>
               <div style={{ fontSize: 10, color: "var(--text3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.album?.name}</div>
             </div>
-          </div>
+          </a>
         ))}
       </div>
 

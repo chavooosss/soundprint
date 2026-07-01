@@ -19,6 +19,17 @@ export const analysisService = {
     trackUris: string[];
     public?: boolean;
   }) => api.post("/api/analysis/create-playlist", payload),
+  getRecommendations: (payload: {
+    seedArtistIds?: string[];
+    seedTrackIds?: string[];
+    minEnergy?: number;  maxEnergy?: number;
+    minValence?: number; maxValence?: number;
+    minTempo?: number;   maxTempo?: number;
+    targetEnergy?: number;
+    targetValence?: number;
+    targetTempo?: number;
+    limit?: number;
+  }) => api.post("/api/analysis/recommendations", payload),
 };
 
 export default api;

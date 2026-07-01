@@ -37,6 +37,14 @@ export const Dashboard = () => {
   const [tab, setTab] = useState<Tab>("overview");
   const [timeRange] = useState<TimeRange>("medium_term");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    const d = await fetchProfile();
+    if (d) setFullData(d);
+    setRefreshing(false);
+  };
 
   // Dark mode
   const [dark, setDark] = useState(() => localStorage.getItem("soundprint-theme") === "dark");
@@ -71,7 +79,8 @@ export const Dashboard = () => {
   const buildPeriodProfile = (tr: TimeRange): { tracks: any[]; artists: any[]; profile: CharacterProfile } => {
     const t = fullData?.topTracks?.[tr] ?? [];
     const a = fullData?.topArtists?.[tr] ?? [];
-    const p: CharacterProfile = { ...profile, stats: { ...profile.stats } };
+    // Use per-period profile from backend; fall back to medium_term if not available
+    const p: CharacterProfile = fullData?.profiles?.[tr] ?? profile;
     return { tracks: t, artists: a, profile: p };
   };
 
@@ -229,12 +238,20 @@ export const Dashboard = () => {
           </div>
         )}
 
-        {tab === "ai" && <div style={{ display:"flex", flexDirection:"column", gap:16 }}><MusicDNA profile={profile}/><AIPersonality profile={profile} topTracks={tracks} topArtists={allArtists}/></div>}
+        {tab === "ai" && <div style={{ display:"flex", flexDirection:"column", gap:16 }}><MusicDNA profile={profile} isDark={dark}/><AIPersonality profile={profile} topTracks={tracks} topArtists={allArtists}/></div>}
         {tab === "stats" && <StatsCharts shortProfile={buildPeriodProfile("short_term").profile} mediumProfile={buildPeriodProfile("medium_term").profile} longProfile={buildPeriodProfile("long_term").profile} tracks={tracks} artists={allArtists}/>}
-        {tab === "network" && <ArtistNetwork artists={allArtists}/>}
-        {tab === "artists" && <ArtistDeepDive artists={allArtists} tracks={[...fullData?.topTracks?.short_term??[], ...fullData?.topTracks?.medium_term??[], ...fullData?.topTracks?.long_term??[]]}/>}
-        {tab === "playlist" && <PlaylistEngine tracks={[...fullData?.topTracks?.short_term??[], ...fullData?.topTracks?.medium_term??[], ...fullData?.topTracks?.long_term??[]]} artists={allArtists} profile={profile}/>}
-        {tab === "patterns" && <div style={{ display:"flex", flexDirection:"column", gap:16 }}><PatternHeatmap recent={recent} tracks={tracks} profile={profile}/><ComparisonMode short={{ label:"4 Hafta",...buildPeriodProfile("short_term") }} medium={{ label:"6 Ay",...buildPeriodProfile("medium_term") }} long={{ label:"Tüm Zaman",...buildPeriodProfile("long_term") }}/></div>}
+        {tab === "network" && <ArtistNetwork artists={allArtists} isDark={dark}/>}
+        {tab === "artists" && <ArtistDeepDive artists={allArtists} tracks={Array.from(new Map([...fullData?.topTracks?.short_term??[], ...fullData?.topTracks?.medium_term??[], ...fullData?.topTracks?.long_term??[]].map((t:any) => [t.id, t])).values())}/>}
+        {tab === "playlist" && <PlaylistEngine tracks={Array.from(new Map([...fullData?.topTracks?.short_term??[], ...fullData?.topTracks?.medium_term??[], ...fullData?.topTracks?.long_term??[]].map((t:any) => [t.id, t])).values())} artists={allArtists} profile={profile}/>}
+        {tab === "patterns" && <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+          <div style={{ display:"flex", justifyContent:"flex-end" }}>
+            <button onClick={refreshData} disabled={refreshing}
+              style={{ fontSize:12, fontWeight:600, color:"var(--accent)", background:"rgba(0,113,227,0.08)", border:"1px solid rgba(0,113,227,0.2)", borderRadius:8, padding:"6px 14px", cursor:refreshing?"default":"pointer" }}>
+              {refreshing ? "Yenileniyor..." : "↻ Veriyi Yenile"}
+            </button>
+          </div>
+          <PatternHeatmap recent={recent} tracks={tracks} profile={profile}/>
+          <ComparisonMode short={{ label:"4 Hafta",...buildPeriodProfile("short_term") }} medium={{ label:"6 Ay",...buildPeriodProfile("medium_term") }} long={{ label:"Tüm Zaman",...buildPeriodProfile("long_term") }}/></div>}
         {tab === "feed" && <RecentFeed recent={recent}/>}
       </div>
     </div>

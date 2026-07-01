@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 import type { CharacterProfile } from "../types";
 
-interface Props { profile: CharacterProfile; }
+interface Props { profile: CharacterProfile; isDark?: boolean; }
 
-export const MusicDNA = ({ profile }: Props) => {
+export const MusicDNA = ({ profile, isDark = false }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -26,8 +26,8 @@ export const MusicDNA = ({ profile }: Props) => {
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
 
-      // Background
-      ctx.fillStyle = "#f5f5f7";
+      // Background — theme aware
+      ctx.fillStyle = isDark ? "#1c1c1e" : "#f5f5f7";
       ctx.fillRect(0, 0, W, H);
 
       // Draw DNA strands
@@ -81,7 +81,7 @@ export const MusicDNA = ({ profile }: Props) => {
         ctx.font = "600 11px Inter, sans-serif";
         ctx.textAlign = "center";
         ctx.fillText(label, x, H - 12);
-        ctx.fillStyle = "rgba(0,0,0,0.4)";
+        ctx.fillStyle = isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)";
         ctx.font = "500 10px Inter, sans-serif";
         ctx.fillText((params[i] * 100).toFixed(0) + "%", x, H - 0);
       });
@@ -92,7 +92,7 @@ export const MusicDNA = ({ profile }: Props) => {
 
     const raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, [profile]);
+  }, [profile, isDark]);
 
   return (
     <div className="card" style={{ padding: "20px 20px 8px" }}>

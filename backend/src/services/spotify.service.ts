@@ -51,12 +51,12 @@ export const getTopTracks = async (token: string, timeRange: TimeRange = "medium
 export const getTopArtists = async (token: string, timeRange: TimeRange = "medium_term", limit = 20): Promise<SpotifyArtist[]> =>
   (await client(token).get<{ items: SpotifyArtist[] }>("/me/top/artists", { params: { time_range: timeRange, limit } })).data.items;
 
-export const getRecentlyPlayed = async (token: string, limit = 50): Promise<SpotifyTrack[]> => {
+export const getRecentlyPlayed = async (token: string, limit = 50): Promise<(SpotifyTrack & { played_at: string })[]> => {
   const { data } = await client(token).get<{ items: { track: SpotifyTrack; played_at: string }[] }>(
     "/me/player/recently-played",
     { params: { limit } }
   );
-  return data.items.map((i) => i.track);
+  return data.items.map((i) => ({ ...i.track, played_at: i.played_at }));
 };
 
 export const getAudioFeatures = async (token: string, trackIds: string[]): Promise<AudioFeatures[]> => {
@@ -96,4 +96,43 @@ export const addTracksToPlaylist = async (
   for (let i = 0; i < trackUris.length; i += 100) {
     await client(token).post(`/playlists/${playlistId}/tracks`, { uris: trackUris.slice(i, i + 100) });
   }
+};
+
+export interface RecommendationParams {
+  seed_artists?: string[];
+  seed_tracks?: string[];
+  seed_genres?: string[];
+  target_energy?: number;
+  target_valence?: number;
+  target_tempo?: number;
+  min_energy?: number;
+  max_energy?: number;
+  min_valence?: number;
+  max_valence?: number;
+  min_tempo?: number;
+  max_tempo?: number;
+  limit?: number;
+}
+
+export const getRecommendations = async (
+  token: string,
+  params: RecommendationParams
+): Promise<SpotifyTrack[]> => {
+  const query: Record<string, string> = {};
+  if (params.seed_artists?.length) query.seed_artists = params.seed_artists.slice(0, 3).join(",");
+  if (params.seed_tracks?.length)  query.seed_tracks  = params.seed_tracks.slice(0, 2).join(",");
+  if (params.seed_genres?.length)  query.seed_genres  = params.seed_genres.slice(0, 2).join(",");
+  if (params.target_energy  != null) query.target_energy  = String(params.target_energy);
+  if (params.target_valence != null) query.target_valence = String(params.target_valence);
+  if (params.target_tempo   != null) query.target_tempo   = String(params.target_tempo);
+  if (params.min_energy     != null) query.min_energy     = String(params.min_energy);
+  if (params.max_energy     != null) query.max_energy     = String(params.max_energy);
+  if (params.min_valence    != null) query.min_valence    = String(params.min_valence);
+  if (params.max_valence    != null) query.max_valence    = String(params.max_valence);
+  if (params.min_tempo      != null) query.min_tempo      = String(params.min_tempo);
+  if (params.max_tempo      != null) query.max_tempo      = String(params.max_tempo);
+  query.limit = String(Math.min(params.limit ?? 50, 100));
+
+  const { data } = await client(token).get<{ tracks: SpotifyTrack[] }>("/recommendations", { params: query });
+  return data.tracks;
 };

@@ -6,14 +6,15 @@ import { requireAuth } from "../middleware/auth.middleware";
 
 const router = Router();
 
+// Session-independent state store: state → expiry timestamp
+const pendingStates = new Map<string, number>();
+const STATE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
 router.get("/login", (req, res) => {
   const state = crypto.randomBytes(16).toString("hex");
-  req.session.state = state;
-  req.session.save((err) => {
-    if (err) console.error("[Login] Session save error:", err);
-    console.log("[Login] Session ID:", req.sessionID, "State:", state);
-    res.redirect(getAuthUrl(state));
-  });
+  pendingStates.set(state, Date.now() + STATE_TTL_MS);
+  console.log("[Login] State:", state);
+  res.redirect(getAuthUrl(state));
 });
 
 router.get("/callback", async (req, res) => {
@@ -27,10 +28,12 @@ router.get("/callback", async (req, res) => {
     return;
   }
 
-  if (!state || state !== req.session.state) {
+  const stateExpiry = pendingStates.get(state);
+  if (!state || !stateExpiry || Date.now() > stateExpiry) {
     res.redirect(`${config.clientUrl}?error=invalid_state`);
     return;
   }
+  pendingStates.delete(state);
 
   try {
     const tokens = await exchangeCode(code);
@@ -39,7 +42,6 @@ router.get("/callback", async (req, res) => {
     req.session.spotifyTokens = tokens;
     req.session.tokenExpiry = Date.now() + tokens.expires_in * 1000;
     req.session.userId = user.id;
-    delete req.session.state;
 
     req.session.save((err) => {
       if (err) {
@@ -47,7 +49,7 @@ router.get("/callback", async (req, res) => {
         res.redirect(`${config.clientUrl}?error=session_save_failed`);
         return;
       }
-      console.log("[Callback] Success, user:", user.display_name);
+      console.log("[Callback] Success, user:", user.display_name, "| scopes:", tokens.scope);
       // Send session ID via URL so frontend can pass it back
       res.redirect(`${config.clientUrl}/dashboard?sid=${req.sessionID}`);
     });
@@ -55,6 +57,12 @@ router.get("/callback", async (req, res) => {
     console.error("[Auth Callback]", err);
     res.redirect(`${config.clientUrl}?error=auth_failed`);
   }
+});
+
+// Expose token for client-side Spotify API calls (only safe in local dev)
+router.get("/token", requireAuth, (req, res) => {
+  const tokens = req.session.spotifyTokens!;
+  res.json({ access_token: tokens.access_token, userId: req.session.userId });
 });
 
 router.get("/status", requireAuth, async (req, res) => {

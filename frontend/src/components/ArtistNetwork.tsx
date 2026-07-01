@@ -1,17 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 
-interface Artist { id: string; name: string; genres: string[]; images?: {url:string}[]; popularity?: number; }
-interface Props { artists: Artist[]; }
+interface Artist { id: string; name: string; genres: string[]; images?: {url:string}[]; popularity?: number; followers?: {total:number}; }
+interface Props { artists: Artist[]; isDark?: boolean; }
 interface Node { id:string; name:string; x:number; y:number; vx:number; vy:number; r:number; color:string; img?:string; genre:string; }
 interface Edge { a:number; b:number; strength:number; }
 
 const PAL = ["#7c3aed","#3b82f6","#ec4899","#f59e0b","#10b981","#06b6d4","#f97316","#a855f7"];
 const gc = (g:string) => { let h=0; for(let i=0;i<g.length;i++) h=g.charCodeAt(i)+((h<<5)-h); return PAL[Math.abs(h)%PAL.length]; };
 
-export const ArtistNetwork = ({ artists }: Props) => {
+export const ArtistNetwork = ({ artists, isDark = true }: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [tip, setTip] = useState<{x:number;y:number;name:string;genre:string}|null>(null);
-  const state = useRef<{nodes:Node[];edges:Edge[];raf:number;hi:number}>({nodes:[],edges:[],raf:0,hi:-1});
+  const state = useRef<{nodes:Node[];edges:Edge[];raf:number;hi:number;isDark:boolean}>({nodes:[],edges:[],raf:0,hi:-1,isDark:true});
+
+  // Sync isDark into ref so draw loop picks it up without re-init
+  useEffect(() => { state.current.isDark = isDark; }, [isDark]);
 
   useEffect(() => {
     if (!artists.length) return;
@@ -25,7 +28,8 @@ export const ArtistNetwork = ({ artists }: Props) => {
     const nodes: Node[] = top.map((a, i) => {
       const ang = (i/top.length)*Math.PI*2;
       const d = 140 + Math.random()*80;
-      return { id:a.id, name:a.name, x:W/2+Math.cos(ang)*d, y:H/2+Math.sin(ang)*d, vx:0, vy:0, r:7+(a.popularity??60)/18, color:gc(a.genres?.[0]??a.id), img:a.images?.[2]?.url||a.images?.[0]?.url, genre:a.genres?.[0]??"unknown" };
+      const genreLabel = a.genres?.length ? a.genres[0] : a.popularity != null ? `Popülarite: ${a.popularity}` : "";
+      return { id:a.id, name:a.name, x:W/2+Math.cos(ang)*d, y:H/2+Math.sin(ang)*d, vx:0, vy:0, r:7+(a.popularity??60)/18, color:gc(a.genres?.[0]??a.id), img:a.images?.[2]?.url||a.images?.[0]?.url, genre:genreLabel };
     });
 
     const edges: Edge[] = [];
@@ -41,14 +45,14 @@ export const ArtistNetwork = ({ artists }: Props) => {
 
     const draw = () => {
       ctx.clearRect(0,0,W,H);
-      const {nodes:ns,edges:es,hi} = state.current;
+      const {nodes:ns,edges:es,hi,isDark:dark} = state.current;
 
-      // Subtle bg
-      ctx.fillStyle="#0f0f14";
+      // Theme-aware background
+      ctx.fillStyle = dark ? "#0f0f14" : "#f2f2f7";
       ctx.fillRect(0,0,W,H);
 
       // Grid dots
-      ctx.fillStyle="rgba(255,255,255,0.025)";
+      ctx.fillStyle = dark ? "rgba(255,255,255,0.025)" : "rgba(0,0,0,0.04)";
       for(let x=0;x<W;x+=40) for(let y=0;y<H;y+=40) { ctx.beginPath();ctx.arc(x,y,1,0,Math.PI*2);ctx.fill(); }
 
       // Edges
@@ -56,8 +60,9 @@ export const ArtistNetwork = ({ artists }: Props) => {
         const a=ns[e.a],b=ns[e.b];
         const isH=hi===e.a||hi===e.b;
         const grad=ctx.createLinearGradient(a.x,a.y,b.x,b.y);
-        if(isH){grad.addColorStop(0,a.color+"88");grad.addColorStop(1,b.color+"88");}
-        else{grad.addColorStop(0,"rgba(255,255,255,0.04)");grad.addColorStop(1,"rgba(255,255,255,0.04)");}
+        if(isH){grad.addColorStop(0,a.color+"cc");grad.addColorStop(1,b.color+"cc");}
+        else if(dark){grad.addColorStop(0,"rgba(255,255,255,0.18)");grad.addColorStop(1,"rgba(255,255,255,0.18)");}
+        else{grad.addColorStop(0,"rgba(0,0,0,0.18)");grad.addColorStop(1,"rgba(0,0,0,0.18)");}
         ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
         ctx.strokeStyle=grad;ctx.lineWidth=isH?e.strength*0.8:0.5;ctx.stroke();
       });
@@ -73,11 +78,16 @@ export const ArtistNetwork = ({ artists }: Props) => {
         ctx.save();ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.clip();
         const im=imgs[n.id];
         if(im?.complete&&im.naturalWidth>0){ctx.drawImage(im,n.x-n.r,n.y-n.r,n.r*2,n.r*2);}
-        else{ctx.fillStyle=n.color+"44";ctx.fillRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2);}
+        else{ctx.fillStyle=n.color+"cc";ctx.fillRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2);}
         ctx.restore();
         ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
-        ctx.strokeStyle=isH?n.color:n.color+"66";ctx.lineWidth=isH?2:1;ctx.stroke();
-        if(isH){ctx.font="600 11px 'Plus Jakarta Sans',sans-serif";ctx.fillStyle="#fff";ctx.textAlign="center";ctx.shadowColor=n.color;ctx.shadowBlur=8;ctx.fillText(n.name,n.x,n.y+n.r+15);ctx.shadowBlur=0;}
+        ctx.strokeStyle=isH?n.color:n.color+"aa";ctx.lineWidth=isH?2.5:1.5;ctx.stroke();
+        if(isH){
+          ctx.font="600 11px 'Plus Jakarta Sans',sans-serif";
+          ctx.fillStyle=dark?"#fff":"#111";
+          ctx.textAlign="center";ctx.shadowColor=n.color;ctx.shadowBlur=8;
+          ctx.fillText(n.name,n.x,n.y+n.r+15);ctx.shadowBlur=0;
+        }
       });
 
       // Physics
@@ -109,18 +119,25 @@ export const ArtistNetwork = ({ artists }: Props) => {
     return()=>{cancelAnimationFrame(state.current.raf);canvas.removeEventListener("mousemove",onMove);};
   }, [artists]);
 
+  const bgColor = isDark ? "#0f0f14" : "#f2f2f7";
+  const borderColor = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.08)";
+  const tipBg = isDark ? "#161620" : "#fff";
+  const tipBorder = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+  const tipTextMain = isDark ? "#f0f0f5" : "#111";
+  const tipTextSub = isDark ? "rgba(240,240,245,0.45)" : "rgba(0,0,0,0.4)";
+
   return (
     <div>
       <div style={{ marginBottom: 16 }}>
         <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 4 }}>Sanatçı İlişki Ağı</div>
         <div style={{ fontSize: 13, color: "var(--text2)" }}>Ortak türlere göre bağlantılı sanatçılar. Hover ile detay görün.</div>
       </div>
-      <div style={{ position: "relative", background: "#0f0f14", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, overflow: "hidden" }}>
+      <div style={{ position: "relative", background: bgColor, border: `1px solid ${borderColor}`, borderRadius: 16, overflow: "hidden" }}>
         <canvas ref={canvasRef} style={{ display: "block", width: "100%" }} />
         {tip && (
-          <div style={{ position: "absolute", left: tip.x+14, top: tip.y-10, background: "#161620", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "8px 12px", fontSize: 12, pointerEvents: "none", zIndex: 10, fontFamily: "'Plus Jakarta Sans',sans-serif", boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
-            <div style={{ fontWeight: 700, marginBottom: 2 }}>{tip.name}</div>
-            <div style={{ color: "rgba(240,240,245,0.45)", fontSize: 11 }}>{tip.genre}</div>
+          <div style={{ position: "absolute", left: tip.x+14, top: tip.y-10, background: tipBg, border: `1px solid ${tipBorder}`, borderRadius: 10, padding: "8px 12px", fontSize: 12, pointerEvents: "none", zIndex: 10, fontFamily: "'Plus Jakarta Sans',sans-serif", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
+            <div style={{ fontWeight: 700, marginBottom: 2, color: tipTextMain }}>{tip.name}</div>
+            <div style={{ color: tipTextSub, fontSize: 11 }}>{tip.genre || "Tür bilgisi yok"}</div>
           </div>
         )}
       </div>

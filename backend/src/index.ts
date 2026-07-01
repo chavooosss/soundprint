@@ -1,9 +1,12 @@
 import express from "express";
 import session from "express-session";
+import FileStore from "session-file-store";
 import cors from "cors";
 import { config } from "./config";
 import authRoutes from "./routes/auth.routes";
 import analysisRoutes from "./routes/analysis.routes";
+
+const SessionFileStore = FileStore(session);
 
 const app = express();
 
@@ -20,8 +23,9 @@ app.use(
   session({
     name: "sid",
     secret: config.sessionSecret,
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
+    store: new SessionFileStore({ path: "./sessions", ttl: 86400, reapInterval: 3600, logFn: () => {} }),
     cookie: {
       httpOnly: true,
       secure: false,
