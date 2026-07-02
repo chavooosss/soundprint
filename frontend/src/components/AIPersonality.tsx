@@ -21,7 +21,7 @@ const renderBody = (text: string) =>
   text.split("\n").map((line, i) => {
     const bold = line.replace(/\*\*(.*?)\*\*/g, (_m, g) => `<b>${g}</b>`);
     return (
-      <p key={i} style={{ marginBottom: 6, lineHeight: 1.7 }}
+      <p key={i} style={{ fontSize: 14, marginBottom: 6, lineHeight: 1.75 }}
         dangerouslySetInnerHTML={{ __html: bold.replace(/<(?!b>|\/b>)[^>]*>/g, "") }} />
     );
   });

@@ -16,6 +16,7 @@ import { StatsCharts } from "../components/StatsCharts";
 import { TopTrackRow } from "../components/TrackHoverCard";
 import { WeeklyComparison } from "../components/WeeklyComparison";
 import { ShareCard } from "../components/ShareCard";
+import { LogoIcon } from "../components/Logo";
 import type { SpotifyUser } from "../types";
 import type { CharacterProfile } from "../types";
 
@@ -108,10 +109,8 @@ export const Dashboard = () => {
       <div className={`dashboard-sidebar${sidebarOpen ? " open" : ""}`}>
         {/* Logo + dark toggle */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 8px", marginBottom: 28 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 9, background: "linear-gradient(145deg,#1d1d1f,#3a3a3c)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="white" opacity="0.9"><circle cx="12" cy="12" r="5" fill="white"/><circle cx="12" cy="12" r="10" stroke="white" strokeWidth="1.5" fill="none" opacity="0.3"/></svg>
-          </div>
-          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: "-0.01em", color: "var(--text)", flex: 1 }}>Soundprint</span>
+          <LogoIcon size={32} radius={9} />
+          <span style={{ fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 700, letterSpacing: "-0.01em", color: "var(--text)", flex: 1 }}>Soundprint</span>
           <button className="theme-toggle" onClick={() => setDark((d) => !d)} title={dark ? "Açık tema" : "Koyu tema"}>
             {dark ? "☀" : "🌙"}
           </button>
@@ -155,7 +154,7 @@ export const Dashboard = () => {
         {tab === "overview" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div className="fade-up">
-              <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em", marginBottom: 4 }}>
+              <h1 style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 4 }}>
                 Merhaba, {user?.display_name?.split(" ")[0]} 👋
               </h1>
               <div style={{ fontSize: 14, color: "var(--text2)" }}>İşte müzik profiliine genel bakış</div>
@@ -171,7 +170,7 @@ export const Dashboard = () => {
               ].map((s, i) => (
                 <div key={i} className="card fade-up" style={{ padding: "18px 20px", animationDelay: `${i*0.05}s` }}>
                   <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text3)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>{s.label}</div>
-                  <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: "-0.03em", color: s.color, lineHeight: 1 }}>{s.value}</div>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", color: s.color, lineHeight: 1 }}>{s.value}</div>
                   <div style={{ fontSize: 11, color: "var(--text3)", marginTop: 4, fontWeight: 500 }}>{s.unit}</div>
                 </div>
               ))}

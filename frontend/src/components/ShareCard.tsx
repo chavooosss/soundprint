@@ -167,9 +167,9 @@ export const ShareCard = ({ profile, artists, tracks }: Props) => {
             </div>
             <div>
               <div style={{ fontSize: 11, fontWeight: 600, opacity: 0.7, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Müzik Karakterin</div>
-              <div style={{ fontSize: 30, fontWeight: 900, letterSpacing: "-0.02em", lineHeight: 1.1, textShadow: `0 2px 24px ${glowA}70` }}>{profile.archetype}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 30, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.1, textShadow: `0 2px 24px ${glowA}70` }}>{profile.archetype}</div>
             </div>
-            <p style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.9, margin: 0 }}>{profile.description}</p>
+            <p style={{ fontSize: 14, lineHeight: 1.6, opacity: 0.9, margin: 0 }}>{profile.description}</p>
             <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
               {[
                 { l: "Enerji", v: profile.stats.avgEnergy },
@@ -229,14 +229,14 @@ export const ShareCard = ({ profile, artists, tracks }: Props) => {
               <div key={s.l}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 6 }}>
                   <span style={{ opacity: 0.85, fontWeight: 500 }}>{s.l}</span>
-                  <span style={{ fontWeight: 800 }}>{(s.v * 100).toFixed(0)}%</span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>{(s.v * 100).toFixed(0)}%</span>
                 </div>
                 <div style={{ height: 6, background: "rgba(255,255,255,0.15)", borderRadius: 3 }}>
                   <div style={{ height: "100%", width: `${s.v * 100}%`, background: `linear-gradient(90deg, ${glowB}, ${glowA})`, borderRadius: 3, boxShadow: `0 0 8px ${glowA}90` }} />
                 </div>
               </div>
             ))}
-            <div style={{ marginTop: 4, fontSize: 13, opacity: 0.85 }}>Ortalama Tempo: <b>{Math.round(profile.stats.avgTempo)} BPM</b></div>
+            <div style={{ marginTop: 4, fontSize: 13, opacity: 0.85 }}>Ortalama Tempo: <b style={{ fontFamily: "var(--font-mono)" }}>{Math.round(profile.stats.avgTempo)} BPM</b></div>
           </div>
         )}
 

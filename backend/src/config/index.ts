@@ -8,6 +8,7 @@ const required = (key: string): string => {
 };
 
 export const config = {
+  isProduction: process.env.NODE_ENV === "production",
   port: parseInt(process.env.PORT || "3001"),
   clientUrl: process.env.CLIENT_URL || "http://localhost:3000",
   sessionSecret: required("SESSION_SECRET"),

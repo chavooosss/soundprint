@@ -27,13 +27,13 @@ export const CharacterCard = ({ profile }: Props) => {
           <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: "-0.02em", color: "var(--text)" }}>{profile.archetype}</div>
         </div>
       </div>
-      <p style={{ fontSize: 12, color: "var(--text2)", lineHeight: 1.75, marginBottom: 16 }}>{profile.description}</p>
+      <p style={{ fontSize: 13, color: "var(--text2)", lineHeight: 1.75, marginBottom: 16 }}>{profile.description}</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {bars.map(b => (
           <div key={b.label}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, fontWeight: 500, marginBottom: 5 }}>
               <span style={{ color: "var(--text2)" }}>{b.label}</span>
-              <span style={{ color: b.color }}>{(b.val * 100).toFixed(0)}%</span>
+              <span style={{ fontFamily: "var(--font-mono)", color: b.color }}>{(b.val * 100).toFixed(0)}%</span>
             </div>
             <div style={{ height: 4, background: "var(--bg)", borderRadius: 2, overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${b.val * 100}%`, background: b.color, borderRadius: 2, transition: "width 1.4s cubic-bezier(0.16,1,0.3,1)" }} />
@@ -42,7 +42,7 @@ export const CharacterCard = ({ profile }: Props) => {
         ))}
         <div style={{ paddingTop: 6, display: "flex", justifyContent: "space-between", fontSize: 12, borderTop: "1px solid var(--border)" }}>
           <span style={{ color: "var(--text2)", fontWeight: 500 }}>Ortalama Tempo</span>
-          <span style={{ color: m.color, fontWeight: 700 }}>{Math.round(stats.avgTempo)} BPM</span>
+          <span style={{ fontFamily: "var(--font-mono)", color: m.color, fontWeight: 700 }}>{Math.round(stats.avgTempo)} BPM</span>
         </div>
       </div>
     </div>
