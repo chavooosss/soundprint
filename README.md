@@ -36,7 +36,7 @@ Spotify Wrapped yılda bir kez gelir ve "en çok dinlediğin 5 sanatçı" der. B
 | Haftalık karşılaştırma | ✅ | ❌ | ⚡ Sınırlı | ⚡ Sınırlı |
 | Paylaşılabilir profil kartı | ✅ | ✅ | ❌ | ❌ |
 | Türkçe müzik desteği | ✅ | ✅ | ⚡ Kısıtlı | ⚡ Kısıtlı |
-| Kurulum gerektirmez | ✅ | ✅ | ❌ Ayrı kurulum | ✅ |
+| Kurulum gerektirmez | ⚡ Kendi Spotify app'ini kurman gerekir | ✅ | ❌ Ayrı kurulum | ✅ |
 | Yüklenebilir (PWA) | ✅ | ❌ | ❌ | ❌ |
 
 **Asıl fark:** Diğer uygulamalar liste gösterir. Soundprint seni *tanımlar*.
